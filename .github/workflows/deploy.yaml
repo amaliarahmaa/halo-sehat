@@ -20,7 +20,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd halo-sehat
-            git pull origin main
+            git fetch --all
+            git reset --hard origin/main
             sudo docker build -t halosehat-app .
             sudo docker rm -f $(sudo docker ps -aq) || true
             sudo docker run -d -p 80:3000 --env-file .env halosehat-app
