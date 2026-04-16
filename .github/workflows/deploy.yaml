@@ -22,7 +22,13 @@ jobs:
             cd halo-sehat
             git fetch --all
             git reset --hard origin/main
-            echo "${{ secrets.ENV_FILE }}" > .env
+          
+            echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
+            echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+            echo "DB_PORT=3306" >> .env
+          
             sudo docker build -t halosehat-app .
             sudo docker rm -f $(sudo docker ps -aq) || true
             sudo docker run -d -p 80:3000 --env-file .env halosehat-app
