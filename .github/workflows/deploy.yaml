@@ -22,6 +22,7 @@ jobs:
             cd halo-sehat
             git fetch --all
             git reset --hard origin/main
+            echo "${{ secrets.ENV_FILE }}" > .env
             sudo docker build -t halosehat-app .
             sudo docker rm -f $(sudo docker ps -aq) || true
             sudo docker run -d -p 80:3000 --env-file .env halosehat-app
