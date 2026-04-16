@@ -3,18 +3,16 @@ const express = require('express');
 const multer = require('multer');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const mysql = require('mysql2/promise');
+const path = require('path');
 
 const app = express();
 const port = 3000;
 
-// Setup EJS untuk tampilan
+// Setup EJS
 app.set('view engine', 'ejs');
-app.use(express.urlencoded({ extended: true }));
+app.set('views', path.join(__dirname, 'views'));
 
-// Setup Multer (menyimpan file di memory sementara sebelum dikirim ke S3)
-const upload = multer({ storage: multer.memoryStorage() });
-
-// Konfigurasi AWS S3 (Nanti kita isi di AWS, sekarang siapkan kodenya saja)
+// Konfigurasi S3 Client
 const s3Client = new S3Client({
     region: process.env.AWS_REGION,
     credentials: {
@@ -23,19 +21,29 @@ const s3Client = new S3Client({
     }
 });
 
-// Route 1: Menampilkan halaman utama
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Halaman Utama: Render index.ejs
 app.get('/', (req, res) => {
-    res.render('index');
+    res.render('index', { message: null, error: null });
 });
 
-// Route 2: Menerima data booking dan upload ke S3
-app.post('/booking', upload.single('dokumen'), async (req, res) => {
+// Proses Booking
+app.post('/booking', upload.single('ktp'), async (req, res) => {
     try {
         const { nama, poli } = req.body;
         const file = req.file;
 
-        // Proses Upload ke S3
-        const fileName = `dokumen-${Date.now()}-${file.originalname}`;
+        if (!file) {
+            return res.render('index', { message: null, error: 'File dokumen wajib diunggah!' });
+        }
+
+        // 1. Upload S3
+        const fileName = `ktp-${Date.now()}${path.extname(file.originalname)}`;
         const uploadParams = {
             Bucket: process.env.S3_BUCKET_NAME,
             Key: fileName,
@@ -44,7 +52,7 @@ app.post('/booking', upload.single('dokumen'), async (req, res) => {
         };
         await s3Client.send(new PutObjectCommand(uploadParams));
 
-        // 2. Proses Simpan ke Amazon RDS
+        // 2. Simpan RDS
         const connection = await mysql.createConnection({
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
@@ -55,19 +63,22 @@ app.post('/booking', upload.single('dokumen'), async (req, res) => {
         const query = 'INSERT INTO bookings (nama, poli, file_url) VALUES (?, ?, ?)';
         await connection.execute(query, [nama, poli, fileName]);
         await connection.end();
-
-        console.log(`Data booking ${nama} tersimpan di RDS`);
         
-        // const connection = await mysql.createConnection({ ... });
-        // await connection.execute('INSERT INTO bookings (nama, poli, file_url) VALUES (?, ?, ?)', [nama, poli, fileName]);
+        // Kirim pesan sukses ke EJS
+        res.render('index', { 
+            message: `<strong>Berhasil!</strong> Antrean atas nama <strong>${nama}</strong> telah tercatat di Database dan dokumen tersimpan di AWS S3.`, 
+            error: null 
+        });
 
-        res.send(`<h1>Booking Berhasil!</h1><p>Nama: ${nama}</p><p>Poli: ${poli}</p><p>File KTP telah aman tersimpan di Amazon S3.</p><a href="/">Kembali</a>`);
     } catch (error) {
-        console.error("Error:", error);
-        res.status(500).send("Terjadi kesalahan saat memproses booking.");
+        console.error('Error detail:', error);
+        res.render('index', { 
+            message: null, 
+            error: `Gagal memproses pendaftaran. Periksa koneksi atau log sistem.` 
+        });
     }
 });
 
 app.listen(port, () => {
-    console.log(`Aplikasi Halo Sehat berjalan di http://localhost:${port}`);
+    console.log(`Aplikasi berjalan di port ${port}`);
 });

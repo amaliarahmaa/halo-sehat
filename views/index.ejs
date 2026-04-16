@@ -2,27 +2,155 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Halo Sehat - Booking Puskesmas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puskesmas Majalaya - Layanan Booking Antrean</title>
+    <style>
+        :root {
+            --primary-color: #059669; /* Hijau Puskesmas */
+            --secondary-color: #10b981;
+            --bg-color: #f0fdf4;
+            --text-color: #1f2937;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-top: 6px solid var(--primary-color);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            color: #6b7280;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        input[type="text"], select, input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #047857;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .alert.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #34d399;
+        }
+        .alert.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; padding: 20px;">
-    <h2>Halo Sehat 🏥</h2>
-    <p>Formulir Booking Layanan Puskesmas</p>
-    
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🏥 Puskesmas Majalaya</h1>
+        <p>Sistem Pendaftaran Antrean Online Terpadu</p>
+    </div>
+
+    <% if (message) { %>
+        <div class="alert success"><%- message %></div>
+    <% } %>
+    <% if (error) { %>
+        <div class="alert error"><%- error %></div>
+    <% } %>
+
     <form action="/booking" method="POST" enctype="multipart/form-data">
-        <label>Nama Pasien:</label><br>
-        <input type="text" name="nama" required><br><br>
+        <div class="form-group">
+            <label for="nama">Nama Pasien</label>
+            <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap sesuai KTP" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="poli">Pilih Layanan Poli</label>
+            <select id="poli" name="poli" required>
+                <option value="" disabled selected>-- Silakan Pilih Poli --</option>
+                <option value="Umum">🩺 Poli Umum</option>
+                <option value="Gigi">🦷 Poli Gigi</option>
+                <option value="Anak">👶 Poli KIA & Anak</option>
+            </select>
+        </div>
 
-        <label>Pilih Poli:</label><br>
-        <select name="poli">
-            <option value="Poli Umum">Poli Umum</option>
-            <option value="Poli Gigi">Poli Gigi</option>
-            <option value="Poli KIA">Poli Ibu & Anak (KIA)</option>
-        </select><br><br>
+        <div class="form-group">
+            <label for="ktp">Unggah Dokumen (KTP/Kartu Berobat)</label>
+            <input type="file" id="ktp" name="ktp" accept="image/*" required>
+        </div>
 
-        <label>Upload KTP / Kartu BPJS (WAJIB S3):</label><br>
-        <input type="file" name="dokumen" accept="image/*" required><br><br>
-
-        <button type="submit">Buat Jadwal</button>
+        <button type="submit">Daftar Antrean Sekarang</button>
     </form>
+
+    <div class="footer">
+        &copy; 2026 Layanan Kesehatan Masyarakat
+    </div>
+</div>
+
 </body>
 </html>
