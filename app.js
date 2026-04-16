@@ -44,7 +44,19 @@ app.post('/booking', upload.single('dokumen'), async (req, res) => {
         };
         await s3Client.send(new PutObjectCommand(uploadParams));
 
-        // Note: Untuk sekarang bagian simpan ke RDS MySQL kita beri komentar dulu
+        // 2. Proses Simpan ke Amazon RDS
+        const connection = await mysql.createConnection({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASS,
+            database: process.env.DB_NAME
+        });
+
+        const query = 'INSERT INTO bookings (nama, poli, file_url) VALUES (?, ?, ?)';
+        await connection.execute(query, [nama, poli, fileName]);
+        await connection.end();
+
+        console.log(`Data booking ${nama} tersimpan di RDS`);
         
         // const connection = await mysql.createConnection({ ... });
         // await connection.execute('INSERT INTO bookings (nama, poli, file_url) VALUES (?, ?, ?)', [nama, poli, fileName]);

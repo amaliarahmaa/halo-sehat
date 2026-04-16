@@ -1,0 +1,26 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main  # Ganti jadi 'master' kalau branch kamu namanya master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd halo-sehat-uts
+            git pull origin main
+            sudo docker build -t halosehat-app .
+            sudo docker rm -f $(sudo docker ps -aq) || true
+            sudo docker run -d -p 80:3000 --env-file .env halosehat-app
