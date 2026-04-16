@@ -14,10 +14,10 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Konfigurasi S3 Client
 const s3Client = new S3Client({
-    region: process.env.AWS_REGION,
+    region: "us-east-1",
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_SECRET_KEY
+        accessKeyId: "AKIA26TTWKUP56XDPY7H",
+        secretAccessKey: "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"
     }
 });
 
@@ -45,7 +45,7 @@ app.post('/booking', upload.single('ktp'), async (req, res) => {
         // 1. Upload S3
         const fileName = `ktp-${Date.now()}${path.extname(file.originalname)}`;
         const uploadParams = {
-            Bucket: process.env.S3_BUCKET_NAME,
+            Bucket: "halosehat-uts-amalia-2026",
             Key: fileName,
             Body: file.buffer,
             ContentType: file.mimetype
@@ -54,10 +54,10 @@ app.post('/booking', upload.single('ktp'), async (req, res) => {
 
         // 2. Simpan RDS
         const connection = await mysql.createConnection({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASS,
-            database: process.env.DB_NAME
+            host: "halosehat-db.curiayqckun7.us-east-1.rds.amazonaws.com",
+            user: "admin",
+            password: "admin123",
+            database: "halosehat"
         });
 
         const query = 'INSERT INTO bookings (nama, poli, file_url) VALUES (?, ?, ?)';
