@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Halo Sehat - Booking Puskesmas</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px;">
+    <h2>Halo Sehat 🏥</h2>
+    <p>Formulir Booking Layanan Puskesmas</p>
+    
+    <form action="/booking" method="POST" enctype="multipart/form-data">
+        <label>Nama Pasien:</label><br>
+        <input type="text" name="nama" required><br><br>
+
+        <label>Pilih Poli:</label><br>
+        <select name="poli">
+            <option value="Poli Umum">Poli Umum</option>
+            <option value="Poli Gigi">Poli Gigi</option>
+            <option value="Poli KIA">Poli Ibu & Anak (KIA)</option>
+        </select><br><br>
+
+        <label>Upload KTP / Kartu BPJS (WAJIB S3):</label><br>
+        <input type="file" name="dokumen" accept="image/*" required><br><br>
+
+        <button type="submit">Buat Jadwal</button>
+    </form>
+</body>
+</html>
